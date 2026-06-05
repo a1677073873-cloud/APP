@@ -28,16 +28,30 @@ struct FitSearchBar: View {
     var placeholder: String = "搜索动作..."
 
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass").foregroundColor(.mediumGray)
-            TextField(placeholder, text: $text).font(.fitBody)
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 16))
+                .foregroundColor(.oceanBlue)
+            TextField(placeholder, text: $text)
+                .font(.fitBody)
             if !text.isEmpty {
                 Button { text = "" } label: {
-                    Image(systemName: "xmark.circle.fill").foregroundColor(.mediumGray)
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(.mediumGray)
                 }
             }
         }
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 10).fill(Color.lightGray))
+        .padding(.horizontal, 14)
+        .padding(.vertical, 11)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.pureWhite)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.oceanBlue.opacity(0.3), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.06), radius: 6, y: 2)
     }
 }

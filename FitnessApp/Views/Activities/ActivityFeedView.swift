@@ -3,25 +3,42 @@ import SwiftUI
 /// 运动活动列表页 — 卡片流
 struct ActivityFeedView: View {
     @StateObject private var viewModel = ActivityViewModel()
+    @State private var searchText = ""
+
+    private var filteredActivities: [Activity] {
+        guard !searchText.isEmpty else { return viewModel.activities }
+        let q = searchText.lowercased()
+        return viewModel.activities.filter {
+            $0.title.lowercased().contains(q) ||
+            $0.sportType.lowercased().contains(q) ||
+            $0.location.lowercased().contains(q)
+        }
+    }
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    if viewModel.activities.isEmpty {
-                        EmptyStateView(message: "暂无活动\n快发布第一个活动吧")
-                            .padding(.top, 80)
-                    } else {
-                        ForEach(viewModel.activities) { activity in
-                            NavigationLink(destination: ActivityDetailView(activity: activity, viewModel: viewModel)) {
-                                ActivityCard(activity: activity)
+            VStack(spacing: 0) {
+                FitSearchBar(text: $searchText, placeholder: "搜索活动、运动类型、地点...")
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+
+                ScrollView {
+                    LazyVStack(spacing: 16) {
+                        if filteredActivities.isEmpty {
+                            EmptyStateView(message: searchText.isEmpty ? "暂无活动\n快发布第一个活动吧" : "未找到匹配的活动")
+                                .padding(.top, 80)
+                        } else {
+                            ForEach(filteredActivities) { activity in
+                                NavigationLink(destination: ActivityDetailView(activity: activity, viewModel: viewModel)) {
+                                    ActivityCard(activity: activity)
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 16)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 16)
             }
             .background(Color.lightGray.ignoresSafeArea())
             .navigationTitle("发现活动")
@@ -155,6 +172,20 @@ struct ActivityCard: View {
             }
         }
         .frame(height: 130)
+        .overlay(alignment: .topTrailing) {
+            if !activity.isFree {
+                Text("¥\(String(format: "%.0f", activity.fee))")
+                    .font(.fitCaption)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(Color.black.opacity(0.55))
+                    )
+                    .padding(10)
+            }
+        }
         .clipShape(
             UnevenRoundedRectangle(topLeadingRadius: 16, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 16)
         )

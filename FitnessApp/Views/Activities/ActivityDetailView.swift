@@ -9,6 +9,10 @@ struct ActivityDetailView: View {
     @State private var joinSuccess = false
     @State private var conflictActivity: Activity? = nil
     @State private var showConflictAlert = false
+    @State private var showPayment = false
+    @State private var paymentMethod: PaymentMethod = .wechat
+    @State private var showCancelAlert = false
+    @State private var refundSuccess = false
 
     private var currentActivity: Activity {
         viewModel.activities.first(where: { $0.id == activity.id }) ?? activity
@@ -16,6 +20,15 @@ struct ActivityDetailView: View {
 
     private var hasJoined: Bool {
         viewModel.isJoined(currentActivity)
+    }
+
+    private func performJoin() {
+        let result = viewModel.joinActivity(currentActivity)
+        if result.success {
+            Haptics.success()
+            joinSuccess = true
+            showJoinAlert = true
+        }
     }
 
     var body: some View {
@@ -49,6 +62,39 @@ struct ActivityDetailView: View {
             if let conflict = conflictActivity {
                 Text("该活动与你已报名的「\(conflict.title)」时间冲突（\(conflict.formattedTimeRange)），请先取消其中一个再报名。")
             }
+        }
+        .alert("确认取消报名？", isPresented: $showCancelAlert) {
+            Button("确认取消", role: .destructive) {
+                Haptics.light()
+                viewModel.cancelJoin(currentActivity)
+                if !currentActivity.isFree {
+                    refundSuccess = true
+                }
+            }
+            Button("再想想", role: .cancel) {}
+        } message: {
+            if currentActivity.isFree {
+                Text("取消后你将从「\(currentActivity.title)」中退出，名额将释放给其他人。")
+            } else {
+                Text("取消后「\(currentActivity.title)」的费用 ¥\(String(format: "%.0f", currentActivity.fee)) 将退还到你的原支付账户（\(currentActivity.fee > 0 ? "模拟退款" : "")），预计 1-3 个工作日到账。")
+            }
+        }
+        .alert("退款成功", isPresented: $refundSuccess) {
+            Button("好的", role: .cancel) {}
+        } message: {
+            Text("¥\(String(format: "%.0f", currentActivity.fee)) 已原路退回。")
+        }
+        .sheet(isPresented: $showPayment) {
+            PaymentSheetView(
+                activityTitle: currentActivity.title,
+                amount: currentActivity.fee,
+                selectedMethod: $paymentMethod,
+                onDismiss: { success in
+                    if success {
+                        performJoin()
+                    }
+                }
+            )
         }
     }
 
@@ -202,8 +248,7 @@ struct ActivityDetailView: View {
 
             if hasJoined {
                 Button {
-                    Haptics.light()
-                    viewModel.cancelJoin(currentActivity)
+                    showCancelAlert = true
                 } label: {
                     HStack(spacing: 4) {
                         Text("取消加入")
@@ -254,14 +299,20 @@ struct ActivityDetailView: View {
                     icon: "hand.raised.fill",
                     isFullWidth: false
                 ) {
-                    let result = viewModel.joinActivity(currentActivity)
-                    if result.success {
-                        Haptics.success()
-                        joinSuccess = true
-                        showJoinAlert = true
-                    } else if let conflict = result.conflict {
+                    // 先检查时间冲突
+                    let joinedActivities = viewModel.activities.filter { viewModel.joinedActivityIDs.contains($0.id) }
+                    if let conflict = joinedActivities.first(where: { $0.overlaps(with: currentActivity) }) {
                         conflictActivity = conflict
                         showConflictAlert = true
+                        return
+                    }
+
+                    // 付费活动 → 弹出支付页面
+                    if currentActivity.isFree {
+                        performJoin()
+                    } else {
+                        paymentMethod = .wechat
+                        showPayment = true
                     }
                 }
             }
