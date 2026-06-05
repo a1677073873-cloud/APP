@@ -1,0 +1,23 @@
+# Xcode
+build/
+*.xcuserdata
+*.xcworkspace/xcuserdata
+DerivedData/
+*.moved-aside
+
+# API Keys & Secrets
+Secrets.plist
+
+# Firebase
+GoogleService-Info.plist
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CocoaPods
+Pods/
+
+# Swift Package Manager
+.build/
+.swiftpm/
