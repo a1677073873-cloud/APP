@@ -7,6 +7,8 @@ struct ActivityDetailView: View {
 
     @State private var showJoinAlert = false
     @State private var joinSuccess = false
+    @State private var conflictActivity: Activity? = nil
+    @State private var showConflictAlert = false
 
     private var currentActivity: Activity {
         viewModel.activities.first(where: { $0.id == activity.id }) ?? activity
@@ -40,6 +42,13 @@ struct ActivityDetailView: View {
             Text(joinSuccess
                 ? "你已成功报名「\(currentActivity.title)」，活动开始前可通过 App 查看提醒。"
                 : "很遗憾，该活动名额已满。下次早点来哦！")
+        }
+        .alert("时间冲突", isPresented: $showConflictAlert) {
+            Button("我知道了", role: .cancel) {}
+        } message: {
+            if let conflict = conflictActivity {
+                Text("该活动与你已报名的「\(conflict.title)」时间冲突（\(conflict.formattedTimeRange)），请先取消其中一个再报名。")
+            }
         }
     }
 
@@ -128,7 +137,7 @@ struct ActivityDetailView: View {
 
             // 信息行
             VStack(spacing: 14) {
-                DetailInfoRow(icon: "calendar.badge.clock", title: "活动时间", value: activity.formattedDate)
+                DetailInfoRow(icon: "calendar.badge.clock", title: "活动时间", value: currentActivity.formattedDateTime)
                 DetailInfoRow(icon: "mappin.and.ellipse", title: "活动地点", value: activity.location)
                 DetailInfoRow(icon: "dollarsign.circle", title: "报名费用", value: activity.formattedFee)
                 DetailInfoRow(icon: "person.2", title: "报名人数", value: "\(activity.participantsText)（剩余 \(activity.remainingSpots) 个名额）")
@@ -245,10 +254,15 @@ struct ActivityDetailView: View {
                     icon: "hand.raised.fill",
                     isFullWidth: false
                 ) {
-                    Haptics.success()
-                    viewModel.joinActivity(currentActivity)
-                    joinSuccess = true
-                    showJoinAlert = true
+                    let result = viewModel.joinActivity(currentActivity)
+                    if result.success {
+                        Haptics.success()
+                        joinSuccess = true
+                        showJoinAlert = true
+                    } else if let conflict = result.conflict {
+                        conflictActivity = conflict
+                        showConflictAlert = true
+                    }
                 }
             }
         }

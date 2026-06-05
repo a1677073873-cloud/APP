@@ -8,7 +8,8 @@ struct Activity: Identifiable, Codable {
     let sportType: String          // WorkoutType 的 rawValue
     let coverImageURL: String?     // 远程封面图 URL
     let coverImageData: Data?      // 本地封面图数据
-    let date: Date
+    let startDate: Date
+    let endDate: Date
     let location: String
     let fee: Double                // 0 = 免费
     let maxParticipants: Int
@@ -28,13 +29,31 @@ struct Activity: Identifiable, Codable {
     var isFull: Bool { currentParticipants >= maxParticipants }
     var remainingSpots: Int { max(0, maxParticipants - currentParticipants) }
     var formattedFee: String { isFree ? "免费" : "¥\(String(format: "%.0f", fee))" }
+
     var formattedDate: String {
         let f = DateFormatter()
         f.locale = Locale(identifier: "zh_CN")
-        f.dateFormat = "MM月dd日 HH:mm"
-        return f.string(from: date)
+        f.dateFormat = "MM月dd日"
+        return f.string(from: startDate)
     }
+
+    var formattedTimeRange: String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "zh_CN")
+        f.dateFormat = "HH:mm"
+        return "\(f.string(from: startDate)) - \(f.string(from: endDate))"
+    }
+
+    var formattedDateTime: String {
+        "\(formattedDate) \(formattedTimeRange)"
+    }
+
     var participantsText: String { "\(currentParticipants)/\(maxParticipants)人" }
+
+    /// 判断是否与另一个活动时间重叠
+    func overlaps(with other: Activity) -> Bool {
+        startDate < other.endDate && endDate > other.startDate
+    }
 }
 
 // MARK: - 运动类型颜色映射

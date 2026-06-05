@@ -42,7 +42,7 @@ class ExerciseDataService {
     private func builtInExercises() -> [Exercise] {
         return [
             // 胸部
-            Exercise(name: "标准俯卧撑", category: .chest, description: "经典上肢推力动作，有效锻炼胸肌、三角肌前束和肱三头肌", difficulty: .beginner, targetMuscles: ["胸大肌", "三角肌前束", "肱三头肌"], instructions: ["双手略宽于肩撑地", "身体成一条直线", "屈肘下降至胸部接近地面", "推起回到起始位置"], tips: ["保持核心收紧不塌腰"], videoURL: "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/master.m3u8"),
+            Exercise(name: "标准俯卧撑", category: .chest, description: "经典上肢推力动作，有效锻炼胸肌、三角肌前束和肱三头肌", difficulty: .beginner, targetMuscles: ["胸大肌", "三角肌前束", "肱三头肌"], instructions: ["双手略宽于肩撑地", "身体成一条直线", "屈肘下降至胸部接近地面", "推起回到起始位置"], tips: ["保持核心收紧不塌腰"], videoURL: "BV1A6dEBPE4y"),
             Exercise(name: "哑铃卧推", category: .chest, description: "哑铃卧推可增加胸部力量和肌肉维度，同时增强肩关节稳定性", difficulty: .intermediate, targetMuscles: ["胸大肌", "三角肌前束", "肱三头肌"], instructions: ["仰卧在平板凳上", "双手各持哑铃于胸部两侧", "向上推起哑铃至手臂伸直", "缓慢下放至起始位置"], tips: ["双脚踩稳地面", "肩胛骨收紧"]),
             Exercise(name: "上斜哑铃飞鸟", category: .chest, description: "针对胸肌上部，增加胸部宽度和形态", difficulty: .intermediate, targetMuscles: ["胸大肌上部", "三角肌前束"], instructions: ["仰卧在上斜凳上约30-45度", "双手持哑铃在胸部上方", "微屈肘，向外打开手臂", "感受胸肌拉伸后收回"], tips: ["手臂微弯保持固定角度"]),
             Exercise(name: "双杠臂屈伸", category: .chest, description: "自重训练动作，重点刺激下胸部和肱三头肌", difficulty: .advanced, targetMuscles: ["胸大肌下部", "肱三头肌", "三角肌前束"], instructions: ["双手握双杠支撑身体", "身体前倾约30度", "屈肘下降至肩部略低于肘", "推起至手臂伸直"], tips: ["身体前倾越多，胸部发力越多"]),
@@ -56,7 +56,7 @@ class ExerciseDataService {
             Exercise(name: "超人式伸展", category: .back, description: "强化下背部和臀部肌群，改善体态", difficulty: .beginner, targetMuscles: ["竖脊肌", "臀大肌", "菱形肌"], instructions: ["俯卧，双臂前伸", "同时抬起双臂和双腿", "保持2秒后放下"], tips: ["动作幅度优先于数量"]),
 
             // 腿部
-            Exercise(name: "深蹲", category: .legs, description: "下肢训练之王，全面锻炼腿部力量和核心稳定性", difficulty: .beginner, targetMuscles: ["股四头肌", "臀大肌", "腘绳肌", "核心"], instructions: ["双脚与肩同宽站立", "挺胸收腹", "屈髋屈膝下蹲", "大腿低于水平线后站起"], tips: ["膝盖不要超过脚尖过多", "重心在脚掌中部"], videoURL: "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/master.m3u8"),
+            Exercise(name: "深蹲", category: .legs, description: "下肢训练之王，全面锻炼腿部力量和核心稳定性", difficulty: .beginner, targetMuscles: ["股四头肌", "臀大肌", "腘绳肌", "核心"], instructions: ["双脚与肩同宽站立", "挺胸收腹", "屈髋屈膝下蹲", "大腿低于水平线后站起"], tips: ["膝盖不要超过脚尖过多", "重心在脚掌中部"], videoURL: "BV1fW42197ch"),
             Exercise(name: "弓步蹲", category: .legs, description: "单侧训练改善腿部平衡和稳定性", difficulty: .beginner, targetMuscles: ["股四头肌", "臀大肌", "腘绳肌"], instructions: ["双脚前后分开约一步距离", "身体垂直下蹲", "前后膝均约90度", "蹬地回到起始位置"], tips: ["前膝不超过脚尖"]),
             Exercise(name: "罗马尼亚硬拉", category: .legs, description: "针对腘绳肌和臀部的精准训练", difficulty: .intermediate, targetMuscles: ["腘绳肌", "臀大肌", "竖脊肌"], instructions: ["双脚与髋同宽站立", "微屈膝，髋部后推", "身体前倾至背部即将弯曲", "收缩臀部回到直立"], tips: ["保持背部平直全程", "杠铃贴近小腿"]),
             Exercise(name: "保加利亚分腿蹲", category: .legs, description: "高阶单侧腿部训练，极大刺激股四头肌和臀部", difficulty: .advanced, targetMuscles: ["股四头肌", "臀大肌", "核心"], instructions: ["后脚搭在凳上约40cm高", "前脚向前一步", "垂直下蹲至前大腿水平", "前脚发力站起"], tips: ["前脚全掌着地"]),

@@ -42,9 +42,16 @@ struct PublishActivityView: View {
                     .accentColor(.oceanBlue)
                 }
 
-                // 活动时间
-                inputSection(title: "活动时间") {
-                    DatePicker("", selection: $draft.date, in: Date()...)
+                // 活动开始时间
+                inputSection(title: "开始时间") {
+                    DatePicker("", selection: $draft.startDate, in: Date()...)
+                        .datePickerStyle(.compact)
+                        .labelsHidden()
+                }
+
+                // 活动结束时间
+                inputSection(title: "结束时间") {
+                    DatePicker("", selection: $draft.endDate, in: draft.startDate...)
                         .datePickerStyle(.compact)
                         .labelsHidden()
                 }

@@ -18,8 +18,11 @@ class ActivityViewModel: ObservableObject {
         let now = Date()
         let calendar = Calendar.current
 
-        func date(daysFromNow: Int, hour: Int, minute: Int) -> Date {
+        func start(daysFromNow: Int, hour: Int, minute: Int) -> Date {
             calendar.date(bySettingHour: hour, minute: minute, second: 0, of: calendar.date(byAdding: .day, value: daysFromNow, to: now)!)!
+        }
+        func end(from startDate: Date, hours: Double) -> Date {
+            startDate.addingTimeInterval(hours * 3600)
         }
 
         activities = [
@@ -29,7 +32,8 @@ class ActivityViewModel: ObservableObject {
                 sportType: "有氧运动",
                 coverImageURL: nil,
                 coverImageData: nil,
-                date: date(daysFromNow: 1, hour: 7, minute: 0),
+                startDate: start(daysFromNow: 1, hour: 7, minute: 0),
+                endDate: end(from: start(daysFromNow: 1, hour: 7, minute: 0), hours: 2),
                 location: "朝阳公园南门",
                 fee: 0,
                 maxParticipants: 20,
@@ -44,7 +48,8 @@ class ActivityViewModel: ObservableObject {
                 sportType: "HIIT",
                 coverImageURL: nil,
                 coverImageData: nil,
-                date: date(daysFromNow: 2, hour: 18, minute: 30),
+                startDate: start(daysFromNow: 2, hour: 18, minute: 30),
+                endDate: end(from: start(daysFromNow: 2, hour: 18, minute: 30), hours: 2),
                 location: "怪兽健身工作室（望京店）",
                 fee: 49,
                 maxParticipants: 10,
@@ -59,7 +64,8 @@ class ActivityViewModel: ObservableObject {
                 sportType: "柔韧性训练",
                 coverImageURL: nil,
                 coverImageData: nil,
-                date: date(daysFromNow: 3, hour: 9, minute: 0),
+                startDate: start(daysFromNow: 3, hour: 9, minute: 0),
+                endDate: end(from: start(daysFromNow: 3, hour: 9, minute: 0), hours: 2),
                 location: "三里屯 Lululemon 体验店 3F",
                 fee: 0,
                 maxParticipants: 15,
@@ -74,7 +80,8 @@ class ActivityViewModel: ObservableObject {
                 sportType: "有氧运动",
                 coverImageURL: nil,
                 coverImageData: nil,
-                date: date(daysFromNow: 4, hour: 15, minute: 0),
+                startDate: start(daysFromNow: 4, hour: 15, minute: 0),
+                endDate: end(from: start(daysFromNow: 4, hour: 15, minute: 0), hours: 2),
                 location: "五棵松篮球公园 3 号场",
                 fee: 20,
                 maxParticipants: 12,
@@ -89,7 +96,8 @@ class ActivityViewModel: ObservableObject {
                 sportType: "有氧运动",
                 coverImageURL: nil,
                 coverImageData: nil,
-                date: date(daysFromNow: 5, hour: 8, minute: 30),
+                startDate: start(daysFromNow: 5, hour: 8, minute: 30),
+                endDate: end(from: start(daysFromNow: 5, hour: 8, minute: 30), hours: 2),
                 location: "奥林匹克森林公园南门",
                 fee: 0,
                 maxParticipants: 30,
@@ -104,7 +112,8 @@ class ActivityViewModel: ObservableObject {
                 sportType: "力量训练",
                 coverImageURL: nil,
                 coverImageData: nil,
-                date: date(daysFromNow: 1, hour: 19, minute: 0),
+                startDate: start(daysFromNow: 1, hour: 19, minute: 0),
+                endDate: end(from: start(daysFromNow: 1, hour: 19, minute: 0), hours: 2),
                 location: "铁器时代健身房（中关村店）",
                 fee: 79,
                 maxParticipants: 6,
@@ -119,7 +128,8 @@ class ActivityViewModel: ObservableObject {
                 sportType: "力量训练",
                 coverImageURL: nil,
                 coverImageData: nil,
-                date: date(daysFromNow: 2, hour: 14, minute: 0),
+                startDate: start(daysFromNow: 2, hour: 14, minute: 0),
+                endDate: end(from: start(daysFromNow: 2, hour: 14, minute: 0), hours: 2),
                 location: "岩时攀岩馆（798 店）",
                 fee: 128,
                 maxParticipants: 8,
@@ -134,7 +144,8 @@ class ActivityViewModel: ObservableObject {
                 sportType: "有氧运动",
                 coverImageURL: nil,
                 coverImageData: nil,
-                date: date(daysFromNow: 0, hour: 20, minute: 30),
+                startDate: start(daysFromNow: 0, hour: 20, minute: 30),
+                endDate: end(from: start(daysFromNow: 0, hour: 20, minute: 30), hours: 2),
                 location: "建国门地铁站 A 口集合",
                 fee: 0,
                 maxParticipants: 25,
@@ -148,13 +159,21 @@ class ActivityViewModel: ObservableObject {
 
     // MARK: - Actions
 
-    func joinActivity(_ activity: Activity) {
-        guard let index = activities.firstIndex(where: { $0.id == activity.id }) else { return }
-        guard !activities[index].isFull else { return }
-        guard !joinedActivityIDs.contains(activity.id) else { return }
+    func joinActivity(_ activity: Activity) -> (success: Bool, conflict: Activity?) {
+        guard let index = activities.firstIndex(where: { $0.id == activity.id }) else { return (false, nil) }
+        guard !activities[index].isFull else { return (false, nil) }
+        guard !joinedActivityIDs.contains(activity.id) else { return (false, nil) }
+
+        // 检测时间冲突
+        let joinedActivities = activities.filter { joinedActivityIDs.contains($0.id) }
+        if let conflict = joinedActivities.first(where: { $0.overlaps(with: activity) }) {
+            return (false, conflict)
+        }
+
         activities[index].currentParticipants += 1
         joinedActivityIDs.insert(activity.id)
         Haptics.success()
+        return (true, nil)
     }
 
     func cancelJoin(_ activity: Activity) {
@@ -176,7 +195,8 @@ class ActivityViewModel: ObservableObject {
             sportType: draft.sportType,
             coverImageURL: nil,
             coverImageData: draft.coverImageData,
-            date: draft.date,
+            startDate: draft.startDate,
+            endDate: draft.endDate,
             location: draft.location,
             fee: draft.isFree ? 0 : draft.fee,
             maxParticipants: draft.maxParticipants,
@@ -195,7 +215,8 @@ class ActivityViewModel: ObservableObject {
 struct ActivityDraft {
     var title = ""
     var sportType = "有氧运动"
-    var date = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+    var startDate = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+    var endDate = Calendar.current.date(byAdding: .day, value: 1, to: Date())?.addingTimeInterval(7200) ?? Date()
     var location = ""
     var isFree = true
     var fee: Double = 0
@@ -207,7 +228,8 @@ struct ActivityDraft {
     var isValid: Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !location.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        endDate > startDate
     }
 }
 

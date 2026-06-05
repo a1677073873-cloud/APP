@@ -1,16 +1,15 @@
 import SwiftUI
-import AVKit
 
 struct ExerciseDetailView: View {
     let exercise: Exercise
+
+    @State private var playerLoadFailed = false
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 headerSection
-                if let videoURL = exercise.videoURL, let url = URL(string: videoURL) {
-                    videoSection(url)
-                }
+                videoSection
                 descriptionSection
                 targetMusclesSection
                 instructionsSection
@@ -53,15 +52,34 @@ struct ExerciseDetailView: View {
 
     // MARK: - Video
 
-    private func videoSection(_ url: URL) -> some View {
+    @ViewBuilder
+    private var videoSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Label("教学视频", systemImage: "play.rectangle")
                 .font(.fitHeadline)
                 .foregroundColor(.darkText)
 
-            VideoPlayer(player: AVPlayer(url: url))
-                .frame(height: 220)
-                .cornerRadius(12)
+            if let bvid = BilibiliPlayerView.extractBV(exercise.videoURL), !playerLoadFailed {
+                BilibiliPlayerView(bvid: bvid)
+                    .frame(height: 220)
+                    .cornerRadius(12)
+            } else {
+                // 无视频或加载失败的占位
+                VStack(spacing: 12) {
+                    Image(systemName: playerLoadFailed ? "exclamationmark.triangle" : "video.slash")
+                        .font(.system(size: 36))
+                        .foregroundColor(.mediumGray)
+                    Text(playerLoadFailed ? "视频加载失败，请检查网络后重试" : "暂无教学视频")
+                        .font(.fitCallout)
+                        .foregroundColor(.secondaryText)
+                    Text("可前往 B站搜索「\(exercise.name) 教学」观看真人演示")
+                        .font(.fitCaption)
+                        .foregroundColor(.mediumGray)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 160)
+                .background(RoundedRectangle(cornerRadius: 12).fill(Color.mediumGray.opacity(0.06)))
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)

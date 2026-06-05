@@ -72,7 +72,7 @@ struct ActivityCard: View {
 
                 // 时间 + 费用
                 HStack(spacing: 16) {
-                    LabelRow(icon: "calendar", text: activity.formattedDate)
+                    LabelRow(icon: "calendar", text: activity.formattedDateTime)
                     LabelRow(icon: activity.isFree ? "ticket" : "dollarsign.circle", text: activity.formattedFee)
                 }
 
